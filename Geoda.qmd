@@ -8,6 +8,8 @@ editor: visual
 #| label: setup
 library(tidyverse)
 library(sf)
+library(mapview)
+library(rmapshaper)
 ```
 
 ```{r}
@@ -15,4 +17,59 @@ HgsdOgOmegn <- read_sf("HgsdOgOmegn.gpkg")
 HgsdOgOmegn %>% 
   select(knavn) %>% 
   plot(graticule = TRUE, axes = TRUE, key.pos = 1)
+```
+
+```{r}
+HgsdOgOmegn %>% 
+  select(knavn) %>% 
+  mapview(
+    legend = TRUE,
+    col.regions = sf.colors,
+    alpha.regions = 0.2
+    )
+```
+
+```{r}
+HgsdOgOmegn %>% 
+  ggplot() + 
+  geom_sf(aes(fill = knavn))
+```
+
+```{r}
+HgsdOgOmegnSimp <- HgsdOgOmegn %>% 
+  select(knavn) %>% 
+  # keep_shapes = TRUE else we 
+  # risk to loose islands
+  # keep 5% of the points
+  ms_simplify(
+    keep = 0.05, 
+    keep_shapes = TRUE) 
+
+HgsdOgOmegnSimp %>% 
+  ggplot() + # Note + for ggplot
+  geom_sf(aes(fill = knavn))
+ 
+round(object.size(HgsdOgOmegn) / 1024)
+round(
+  object.size(HgsdOgOmegnSimp) / 1024
+  )
+
+HgsdOgOmegnSimp
+```
+
+```{r}
+HgsdOgOmegn %>% 
+  filter(knavn == 'Haugesund') %>% 
+  ggplot() + 
+  geom_sf(aes(fill = knavn)) +
+  geom_point(aes(x = 5.275, y = 59.410))
+# eastings
+# covert minutes and 
+# seconds to decimal degree
+(24*60 + 37)/(60*60)
+# northings
+# covert minutes and 
+# seconds to decimal degree
+(16*60 + 32)/(60*60)
+
 ```
